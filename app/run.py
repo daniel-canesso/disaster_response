@@ -1,9 +1,11 @@
 import json
 import plotly
 import pandas as pd
-
+import nltk
+import re
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
 from flask import Flask
 from flask import render_template, request, jsonify
@@ -11,26 +13,29 @@ from plotly.graph_objs import Bar
 from sklearn.externals import joblib
 from sqlalchemy import create_engine
 
+nltk.download('punkt')
+nltk.download('stopwords')
+nltk.download('wordnet')
+
 
 app = Flask(__name__)
 
 def tokenize(text):
+    stop_words = set(stopwords.words('english'))
+    text = text.lower()
+    text = re.sub(r"[^a-zA-Z0-9]", " ", text.lower())
     tokens = word_tokenize(text)
     lemmatizer = WordNetLemmatizer()
+    tokens = [lemmatizer.lemmatize(word) for word in tokens if word not in stop_words]
 
-    clean_tokens = []
-    for tok in tokens:
-        clean_tok = lemmatizer.lemmatize(tok).lower().strip()
-        clean_tokens.append(clean_tok)
-
-    return clean_tokens
+    return tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('Message', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -40,8 +45,16 @@ def index():
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
+    
+    #genre_counts = df.groupby('genre').count()['message']
+    #genre_names = list(genre_counts.index)
+    
+    mensage_class = df.iloc[:,4:].columns
+    mensage_count = df.iloc[:,4:].sum()
+    
+    subframe = df[['id', 'genre']].groupby('genre').agg('count').reset_index()
+    mensage_genre = subframe['genre'].values
+    mensage_genre_count = subframe['id'].values
     
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
@@ -49,13 +62,31 @@ def index():
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=mensage_class,
+                    y=mensage_count
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of Message Types',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Types"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=mensage_genre,
+                    y=mensage_genre_count
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Genre',
                 'yaxis': {
                     'title': "Count"
                 },
