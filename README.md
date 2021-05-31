@@ -1,5 +1,13 @@
 # Disaster Response Pipeline Project
 
+### Motivation:
+
+The Disaster Response project aims to create a machine learning model capable of correctly categorizing messages sent by social networks to the competent bodies during periods of humanitarian, environmental and social crises.
+
+With this model, the authorities will be able to orient themselves in a more adequate way, providing correct and quick assistance, according to the countless requests that arrive at these moments.
+
+In addition to all this, classified messages may be sent to the correct bodies, so that assistance also comes from the right entity.
+
 ### File Structure:
 
 - app
