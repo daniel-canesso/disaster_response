@@ -12,6 +12,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 from sklearn.multioutput import MultiOutputClassifier
+from sklearn.model_selection import GridSearchCV
 import pickle
 
 nltk.download('punkt')
@@ -73,7 +74,7 @@ def build_model():
         'clf__estimator__min_samples_split': [2, 3, 4],
         'clf__estimator__max_depth': [3, 5, None]
     }
-    cv = GridSearchCV(pipeline, param_grid=parameters, n_jobs=-1)
+    cv = GridSearchCV(pipeline, param_grid=parameters)
     return cv
     
 
