@@ -38,6 +38,8 @@ def clean_data(df):
         categories[column] = categories[column].apply(lambda x: x.split('-')[-1])
         # convert column from string to numeric
         categories[column] = categories[column].astype('int')
+        # normalize categories to be binary
+        categories[column] = categories[column].apply(lambda x: 1 if x >= 1 else 0)
     # drop the original categories column from `df`
     df.drop(columns=['categories'], inplace=True)
     # concatenate the original dataframe with the new `categories` dataframe
