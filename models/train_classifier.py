@@ -57,7 +57,7 @@ def build_model():
     IN:
         train machine learning model
     OUT:
-        best model trained
+        grid search for best model selection
     """ 
     pipeline = Pipeline([
         ('vect', CountVectorizer(tokenizer=tokenize)),
@@ -68,7 +68,13 @@ def build_model():
             min_samples_split=4
         )))
     ])
-    return pipeline
+    parameters = {
+        'clf__estimator__n_estimators': [100, 200],
+        'clf__estimator__min_samples_split': [2, 3, 4],
+        'clf__estimator__max_depth': [3, 5, None]
+    }
+    cv = GridSearchCV(pipeline, param_grid=parameters, n_jobs=-1)
+    return cv
     
 
 
